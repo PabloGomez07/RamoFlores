@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🌼 Feliz Día de la Primavera</title>
+  <meta name="theme-color" content="#ffd54f" />
+  <style>
+    :root{
+      --amarillo:#ffd54f; --amarillo-2:#ffeb3b; --texto:#2a2a2a; --sombra:0 10px 30px rgba(0,0,0,.15);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;color:var(--texto);background:radial-gradient(1200px 600px at 10% -10%,#fff9c4 0%,#fffde7 30%,#fff 60%);overflow:hidden}
+
+    .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{padding:18px 20px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--amarillo),var(--amarillo-2));box-shadow:var(--sombra);display:grid;place-items:center;font-size:22px}
+    .counter{display:flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:var(--sombra);font-weight:700}
+    .counter .dot{width:10px;height:10px;border-radius:999px;background:var(--amarillo-2);box-shadow:0 0 0 4px rgba(255,235,59,.25)}
+
+    main{position:relative;overflow:hidden;display:grid;place-items:center;padding:10px}
+    .card{width:min(820px,94vw);background:linear-gradient(180deg,#fff,#fff7d6);border:1px solid #ffe082;border-radius:22px;padding:28px;box-shadow:var(--sombra);text-align:center}
+    h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,40px)}
+    p.sub{margin:0 0 18px;opacity:.85}
+    .btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    button{border:0;cursor:pointer;background:linear-gradient(135deg,var(--amarillo-2),var(--amarillo));color:#5a4100;font-weight:800;padding:12px 18px;border-radius:14px;box-shadow:var(--sombra)}
+    .ghost{background:#fff;border:1px solid #ffe082;color:#6b5600}
+
+    /* Flores / corazones grandes */
+    .flower{position:absolute;left:0;top:0;font-size:clamp(40px,12vw,80px);pointer-events:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));animation:floatUp 3.5s ease-out forwards}
+    @keyframes floatUp{0%{transform:translate(-50%,-10%) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-120vh) scale(1.2);opacity:0}}
+
+    .toast{position:absolute;left:50%;top:18%;transform:translateX(-50%);background:#fff;border:1px solid #ffe082;border-radius:14px;padding:14px 18px;font-size:clamp(18px,4vw,26px);box-shadow:var(--sombra);font-weight:600;opacity:0;animation:pop .2s ease-out forwards,fadeOut 2.6s ease 1.8s forwards}
+    @keyframes pop{from{transform:translate(-50%,-6px) scale(.92);opacity:0}to{transform:translate(-50%,0) scale(1);opacity:1}}
+    @keyframes fadeOut{to{opacity:0;transform:translate(-50%,6px) scale(.98)}}
+
+    footer{padding:14px;display:flex;justify-content:center}
+    .tiny{font-size:12.5px;opacity:.7}
+
+    .bubble{position:absolute;border-radius:999px;background:radial-gradient(circle at 30% 30%,#fff59d,#fdd835);opacity:.35;filter:blur(6px);pointer-events:none;animation:rise 10s linear infinite}
+    @keyframes rise{from{transform:translateY(0)}to{transform:translateY(-120vh)}}
+
+    /* Golden retriever (SVG) */
+    .golden{position:absolute;left:0;top:0;width:clamp(96px,22vw,220px);height:clamp(72px,16vw,160px);pointer-events:none;background-size:contain;background-repeat:no-repeat;background-position:center;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:goldenFloat 3s ease-out forwards}
+    @keyframes goldenFloat{0%{transform:translate(-50%,20%) scale(.8) rotate(-2deg);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-120vh) scale(1) rotate(2deg);opacity:0}}
+
+    /* Modal música */
+    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.4)}
+    .modal[open]{display:grid}
+    .modal-card{width:min(820px,96vw);background:#fff;border-radius:18px;box-shadow:var(--sombra);padding:18px}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .modal-body{display:grid;gap:10px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><div class="logo">🌼</div><div>Primavera <span style="opacity:.6">/ para vos</span></div></div>
+      <div class="counter"><span class="dot"></span><span id="count">0</span><span>flores</span></div>
+    </header>
+
+    <main id="stage">
+      <div class="card">
+        <h1>Feliz Día de la Primavera 💛</h1>
+        <p class="sub">Cada toque agrega una flor amarilla, un corazón o un golden 🐕</p>
+        <div class="btns">
+          <button id="btn-add">Agregar 🌼</button>
+          <button class="ghost" id="btn-full">Pantalla completa</button>
+          <button class="ghost" id="btn-reset">Reiniciar</button>
+          <button class="ghost" id="btn-share">Compartir</button>
+          <button class="ghost" id="btn-music">Música ▶️</button>
+        </div>
+        <div style="margin-top:12px; display:flex; align-items:center; gap:10px; justify-content:center; flex-wrap:wrap">
+          <label for="golden-prob"><strong>🐕 Aparición de golden:</strong></label>
+          <input id="golden-prob" type="range" min="0" max="100" step="5" value="20" />
+          <span id="golden-prob-val">20%</span>
+        </div>
+      </div>
+
+      <!-- Modal con YouTube -->
+      <dialog id="music-modal" class="modal">
+        <div class="modal-card">
+          <div class="modal-head">
+            <strong>🎵 Chasing Cars — Snow Patrol (YouTube)</strong>
+            <div class="btns">
+              <button id="btn-play" class="ghost">▶️ Reproducir</button>
+              <button id="btn-pause" class="ghost">⏸️ Pausa</button>
+              <button id="btn-mute" class="ghost">🔇 Mute</button>
+              <button id="btn-close-modal" class="ghost">Cerrar</button>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div id="yt-player" style="aspect-ratio:16/9;width:100%;background:#000;border-radius:12px;overflow:hidden"></div>
+            <div class="tiny">Si el reproductor no carga, <a href="https://www.youtube.com/watch?v=GemKqzILV4w" target="_blank">abrí el video en YouTube</a>.</div>
+          </div>
+        </div>
+      </dialog>
+    </main>
+
+    <footer><div class="tiny">Hecho con 🌼🐕 y un poco de <code>&lt;code/&gt;</code></div></footer>
+  </div>
+
+  <script>
+    // ====== SELECTORES ======
+    const stage = document.getElementById('stage');
+    const btnAdd = document.getElementById('btn-add');
+    const btnFull = document.getElementById('btn-full');
+    const btnReset = document.getElementById('btn-reset');
+    const btnShare = document.getElementById('btn-share');
+    const btnMusic = document.getElementById('btn-music');
+    const musicModal = document.getElementById('music-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnPlay = document.getElementById('btn-play');
+    const btnPause = document.getElementById('btn-pause');
+    const btnMute = document.getElementById('btn-mute');
+    const goldenRange = document.getElementById('golden-prob');
+    const goldenVal = document.getElementById('golden-prob-val');
+    const countEl = document.getElementById('count');
+
+    // ====== DATA ======
+    const emojis = ['🌼','🌻','💛','✨'];
+    const mensajes = [
+      'Sos mi estación favorita','Con vos todo florece','Mi color preferido: tu sonrisa','Más vos, menos frío','Mi primavera empieza cuando te veo','Te elijo hoy y todos los días','Sos sol de tarde linda','Te pienso y florezco','Qué suerte la mía de encontrarte','Plan A: Vos. Plan B: Vos.'
+    ];
+    let count = 0;
+    let goldenProb = 20; // porcentaje de aparición
+
+    // ====== RENDER ======
+    function postSpawn(){ count++; countEl.textContent = count; showToast(); spawnBubbles(); }
+
+    function addFlower(x=null, y=null){
+      const rect = stage.getBoundingClientRect();
+      if(Math.random()*100 < goldenProb){ spawnGolden(x, y); postSpawn(); return; }
+      const el = document.createElement('div');
+      el.className = 'flower';
+      el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      const posX = x ?? (Math.random()*rect.width);
+      const posY = y ?? (rect.height*0.85);
+      el.style.left = posX + 'px';
+      el.style.top = posY + 'px';
+      el.style.setProperty('--dx', (Math.random()*240 - 120) + 'px');
+      stage.appendChild(el);
+      setTimeout(()=>el.remove(), 4200);
+      postSpawn();
+    }
+
+    function showToast(){
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = mensajes[Math.floor(Math.random()*mensajes.length)];
+      stage.appendChild(t);
+      setTimeout(()=>t.remove(), 3000);
+    }
+
+    function spawnBubbles(){
+      for(let i=0;i<3;i++){
+        const b = document.createElement('div');
+        const size = 20 + Math.random()*40;
+        b.className = 'bubble';
+        b.style.width = b.style.height = size + 'px';
+        b.style.left = (Math.random()*100) + '%';
+        b.style.bottom = '-' + (20 + Math.random()*40) + 'px';
+        b.style.animationDuration = (7 + Math.random()*5) + 's';
+        stage.appendChild(b);
+        setTimeout(()=>b.remove(), 12000);
+      }
+    }
+
+    // ====== GOLDEN (SVG) ======
+    const GOLDEN_SVG = encodeURI(`
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'>
+        <defs>
+          <linearGradient id='fur' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='#f5c04e'/>
+            <stop offset='100%' stop-color='#e0a832'/>
+          </linearGradient>
+        </defs>
+        <ellipse cx='150' cy='130' rx='120' ry='70' fill='url(#fur)'/>
+        <circle cx='250' cy='90' r='46' fill='url(#fur)'/>
+        <path d='M230 70 q-18 20 0 46 q18-10 18-30 z' fill='#d79a2a' opacity='.9'/>
+        <ellipse cx='275' cy='102' rx='22' ry='16' fill='#e9be4a'/>
+        <circle cx='288' cy='100' r='6' fill='#333'/>
+        <circle cx='262' cy='85' r='5' fill='#333'/>
+        <rect x='90' y='170' width='20' height='38' rx='8' fill='#e0a832'/>
+        <rect x='130' y='175' width='20' height='34' rx='8' fill='#e0a832'/>
+        <rect x='190' y='170' width='20' height='38' rx='8' fill='#e0a832'/>
+        <rect x='225' y='175' width='20' height='34' rx='8' fill='#e0a832'/>
+        <path d='M40 130 q-40 -10 -30 -40 q50 10 90 20' stroke='#e0a832' stroke-width='18' fill='none' stroke-linecap='round'/>
+        <ellipse cx='240' cy='70' rx='18' ry='10' fill='#fff' opacity='.2'/>
+      </svg>`);
+
+    function spawnGolden(x=null, y=null){
+      const rect = stage.getBoundingClientRect();
+      const g = document.createElement('div');
+      g.className = 'golden';
+      g.style.backgroundImage = `url("data:image/svg+xml;utf8,${GOLDEN_SVG}")`;
+      const posX = x ?? (rect.width * (0.2 + Math.random()*0.6));
+      const posY = y ?? (rect.height * 0.9);
+      g.style.left = posX + 'px';
+      g.style.top = posY + 'px';
+      g.style.setProperty('--dx', (Math.random()*200 - 100) + 'px');
+      stage.appendChild(g);
+      setTimeout(()=>g.remove(), 4200);
+    }
+
+    // ====== EVENTOS ======
+    btnAdd.addEventListener('click', ()=> addFlower());
+    stage.addEventListener('click', (e)=>{
+      if(e.target.closest('button')) return;
+      const rect = stage.getBoundingClientRect();
+      addFlower(e.clientX - rect.left, e.clientY - rect.top);
+    });
+    btnReset.addEventListener('click', ()=>{ count = 0; countEl.textContent = '0'; stage.querySelectorAll('.flower,.toast,.bubble,.golden').forEach(n=>n.remove()); });
+    btnFull.addEventListener('click', ()=>{ const el = document.documentElement; if(!document.fullscreenElement){ el.requestFullscreen?.(); } else { document.exitFullscreen?.(); } });
+    btnShare.addEventListener('click', ()=>{ const text = '🌼 Te hice esta mini app de flores amarillas porque sos mi primavera 💛'; const url = location.href; const w = `https://wa.me/?text=${encodeURIComponent(text+' '+url)}`; window.open(w,'_blank'); });
+
+    // ====== SLIDER GOLDEN ======
+    goldenRange.addEventListener('input', ()=>{ goldenProb = parseInt(goldenRange.value,10)||0; goldenVal.textContent = `${goldenProb}%`; });
+
+    // ====== YOUTUBE IFRAME API + FALLBACK ======
+    const YT_VIDEO_ID = 'GemKqzILV4w'; // Snow Patrol - Chasing Cars (Official Video)
+    let ytPlayer = null; let ytReady = false;
+    window.onYouTubeIframeAPIReady = function(){ ytReady = true; ytPlayer = new YT.Player('yt-player', { width:'100%', height:'100%', videoId:YT_VIDEO_ID, playerVars:{rel:0,modestbranding:1,playsinline:1}, events:{ onReady:()=>{} } }); }
+    ;(function loadYT(){ const tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api'; tag.onerror=()=> setTimeout(embedFallback,1000); document.body.appendChild(tag); setTimeout(()=>{ if(!ytReady && !ytPlayer) embedFallback(); },3000); })();
+    function embedFallback(){ if(ytPlayer) return; const c=document.getElementById('yt-player'); c.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`; }
+
+    btnMusic.addEventListener('click', ()=>{ musicModal.setAttribute('open',''); });
+    btnCloseModal.addEventListener('click', ()=>{ musicModal.removeAttribute('open'); try{ ytPlayer && ytPlayer.pauseVideo(); }catch{} });
+    btnPlay.addEventListener('click', ()=>{ try{ ytPlayer ? ytPlayer.playVideo() : null; }catch{} });
+    btnPause.addEventListener('click', ()=>{ try{ ytPlayer && ytPlayer.pauseVideo(); }catch{} });
+    btnMute.addEventListener('click', ()=>{ try{ if(!ytPlayer) return; if(ytPlayer.isMuted()){ ytPlayer.unMute(); btnMute.textContent='🔇 Mute'; } else { ytPlayer.mute(); btnMute.textContent='🔊 Unmute'; } }catch{} });
+
+    // ====== ARRANQUE ======
+    setTimeout(()=>{ addFlower(); addFlower(); }, 400);
+    setTimeout(()=>{ spawnGolden(); postSpawn(); }, 900);
+
+    // ====== TESTS (consola) ======
+    (function runTests(){
+      const pass = (m)=> console.log('%c✔ '+m,'color:green;font-weight:700');
+      const fail = (m)=> console.error('✖ '+m);
+      try { typeof addFlower==='function' ? pass('addFlower existe') : fail('addFlower no existe'); } catch(e){ fail('Error comprobando addFlower: '+e.message) }
+      try { typeof spawnGolden==='function' ? pass('spawnGolden existe') : fail('spawnGolden no existe'); } catch(e){ fail('Error comprobando spawnGolden: '+e.message) }
+      try { addFlower(10,10); pass('addFlower(10,10) no arroja errores'); } catch(e){ fail('addFlower lanzó error: '+e.message) }
+      try { spawnGolden(20,20); pass('spawnGolden(20,20) no arroja errores'); } catch(e){ fail('spawnGolden lanzó error: '+e.message) }
+      try { goldenRange.value='35'; goldenRange.dispatchEvent(new Event('input')); pass('Slider golden actualiza porcentaje a '+goldenProb+'%'); } catch(e){ fail('Slider golden falló: '+e.message) }
+      try { pass('Video oficial usado: https://www.youtube.com/watch?v=GemKqzILV4w'); } catch(e){}
+    })();
+  </script>
+</body>
+</html>
