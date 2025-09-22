@@ -6,22 +6,20 @@
   <title>🌼 Feliz Día de la Primavera</title>
   <meta name="theme-color" content="#ffd54f" />
   <style>
-    :root{
-      --amarillo:#ffd54f; --amarillo-2:#ffeb3b; --texto:#2a2a2a; --sombra:0 10px 30px rgba(0,0,0,.15);
-    }
+    :root{ --amarillo:#ffd54f; --amarillo-2:#ffeb3b; --texto:#2a2a2a; --sombra:0 10px 30px rgba(0,0,0,.15); }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;color:var(--texto);background:radial-gradient(1200px 600px at 10% -10%,#fff9c4 0%,#fffde7 30%,#fff 60%);overflow:hidden}
 
     .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto}
-    header{padding:18px 20px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    header{padding:18px 20px 8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
     .brand{display:flex;align-items:center;gap:10px;font-weight:700}
     .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--amarillo),var(--amarillo-2));box-shadow:var(--sombra);display:grid;place-items:center;font-size:22px}
     .counter{display:flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:8px 14px;box-shadow:var(--sombra);font-weight:700}
     .counter .dot{width:10px;height:10px;border-radius:999px;background:var(--amarillo-2);box-shadow:0 0 0 4px rgba(255,235,59,.25)}
 
     main{position:relative;overflow:hidden;display:grid;place-items:center;padding:10px}
-    .card{width:min(820px,94vw);background:linear-gradient(180deg,#fff,#fff7d6);border:1px solid #ffe082;border-radius:22px;padding:28px;box-shadow:var(--sombra);text-align:center}
+    .card{width:min(860px,94vw);background:linear-gradient(180deg,#fff,#fff7d6);border:1px solid #ffe082;border-radius:22px;padding:28px;box-shadow:var(--sombra);text-align:center}
     h1{margin:0 0 8px;font-size:clamp(24px,4.6vw,40px)}
     p.sub{margin:0 0 18px;opacity:.85}
     .btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
@@ -46,12 +44,11 @@
     .golden{position:absolute;left:0;top:0;width:clamp(96px,22vw,220px);height:clamp(72px,16vw,160px);pointer-events:none;background-size:contain;background-repeat:no-repeat;background-position:center;filter:drop-shadow(0 8px 14px rgba(0,0,0,.25));animation:goldenFloat 3s ease-out forwards}
     @keyframes goldenFloat{0%{transform:translate(-50%,20%) scale(.8) rotate(-2deg);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),-120vh) scale(1) rotate(2deg);opacity:0}}
 
-    /* Modal música */
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.4)}
-    .modal[open]{display:grid}
-    .modal-card{width:min(820px,96vw);background:#fff;border-radius:18px;box-shadow:var(--sombra);padding:18px}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-    .modal-body{display:grid;gap:10px}
+    /* Nota "juntos desde" */
+    .since-note{font-size:13px; opacity:.9; margin-top:6px; text-align:center}
+
+    /* Estetoscopio */
+    .steth{position:absolute; left:0; top:0; font-size:clamp(36px,10vw,72px); pointer-events:none; filter:drop-shadow(0 6px 10px rgba(0,0,0,.2)); animation:floatUp 2.8s ease-out forwards}
   </style>
 </head>
 <body>
@@ -59,6 +56,11 @@
     <header>
       <div class="brand"><div class="logo">🌼</div><div>Primavera <span style="opacity:.6">/ para vos</span></div></div>
       <div class="counter"><span class="dot"></span><span id="count">0</span><span>flores</span></div>
+      <div class="counter" id="since-wrap" aria-live="polite" title="Tiempo desde 15/01/2018">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="since"></span>
+      </div>
+      <div class="since-note" id="since-note">💛 Amándonos desde el <strong>15/01/2018</strong></div>
     </header>
 
     <main id="stage">
@@ -71,11 +73,6 @@
           <button class="ghost" id="btn-reset">Reiniciar</button>
           <button class="ghost" id="btn-share">Compartir</button>
           <button class="ghost" id="btn-music">Música ▶️</button>
-        </div>
-        <div style="margin-top:12px; display:flex; align-items:center; gap:10px; justify-content:center; flex-wrap:wrap">
-          <label for="golden-prob"><strong>🐕 Aparición de golden:</strong></label>
-          <input id="golden-prob" type="range" min="0" max="100" step="5" value="20" />
-          <span id="golden-prob-val">20%</span>
         </div>
       </div>
 
@@ -115,8 +112,6 @@
     const btnPlay = document.getElementById('btn-play');
     const btnPause = document.getElementById('btn-pause');
     const btnMute = document.getElementById('btn-mute');
-    const goldenRange = document.getElementById('golden-prob');
-    const goldenVal = document.getElementById('golden-prob-val');
     const countEl = document.getElementById('count');
 
     // ====== DATA ======
@@ -125,14 +120,44 @@
       'Sos mi estación favorita','Con vos todo florece','Mi color preferido: tu sonrisa','Más vos, menos frío','Mi primavera empieza cuando te veo','Te elijo hoy y todos los días','Sos sol de tarde linda','Te pienso y florezco','Qué suerte la mía de encontrarte','Plan A: Vos. Plan B: Vos.'
     ];
     let count = 0;
-    let goldenProb = 20; // porcentaje de aparición
+    const DOG_PROB = 25; // % de probabilidad de perro
+
+    // ====== CONTADOR EN TIEMPO REAL DESDE 15/01/2018 ======
+    const SINCE_START = new Date(2018, 0, 15, 0, 0, 0); // 15 enero 2018
+    const sinceEl = document.getElementById('since');
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function diffCalendar(from, to){
+      let a = new Date(from.getTime());
+      const b = to;
+      let years = b.getFullYear() - a.getFullYear();
+      a.setFullYear(a.getFullYear() + years);
+      if(a > b){ years--; a.setFullYear(a.getFullYear() - 1); }
+      let months = b.getMonth() - a.getMonth();
+      if(months < 0){ months += 12; }
+      a.setMonth(a.getMonth() + months);
+      if(a > b){ months--; a.setMonth(a.getMonth() - 1); }
+      const ms1 = b - a; const days = Math.floor(ms1 / 86400000); a.setDate(a.getDate() + days);
+      const ms2 = b - a; const hours = Math.floor(ms2 / 3600000); a.setHours(a.getHours() + hours);
+      const ms3 = b - a; const minutes = Math.floor(ms3 / 60000); a.setMinutes(a.getMinutes() + minutes);
+      const ms4 = b - a; const seconds = Math.floor(ms4 / 1000);
+      return { years, months, days, hours, minutes, seconds };
+    }
+    function renderSince(){
+      const now = new Date();
+      const d = diffCalendar(SINCE_START, now);
+      sinceEl.textContent = `${d.years}a ${d.months}m ${d.days}d ${pad(d.hours)}:${pad(d.minutes)}:${pad(d.seconds)}`;
+      const human = `${d.years} año${d.years!==1?'s':''}, ${d.months} mes${d.months!==1?'es':''} y ${d.days} día${d.days!==1?'s':''}`;
+      const note = document.getElementById('since-note');
+      if(note){ note.innerHTML = `💛 Amándonos desde el <strong>15/01/2018</strong>: <em>${human}</em>`; }
+    }
 
     // ====== RENDER ======
     function postSpawn(){ count++; countEl.textContent = count; showToast(); spawnBubbles(); }
 
     function addFlower(x=null, y=null){
       const rect = stage.getBoundingClientRect();
-      if(Math.random()*100 < goldenProb){ spawnGolden(x, y); postSpawn(); return; }
+      if(Math.random()*100 < DOG_PROB){ spawnDog(x, y); postSpawn(); return; }
       const el = document.createElement('div');
       el.className = 'flower';
       el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
@@ -168,8 +193,8 @@
       }
     }
 
-    // ====== GOLDEN (SVG) ======
-    const GOLDEN_SVG = encodeURI(`
+    // ====== GOLDEN (SVG) y variantes de perro ======
+    const GOLDEN_SVG = encodeURIComponent(`
       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 220'>
         <defs>
           <linearGradient id='fur' x1='0' y1='0' x2='1' y2='1'>
@@ -191,11 +216,25 @@
         <ellipse cx='240' cy='70' rx='18' ry='10' fill='#fff' opacity='.2'/>
       </svg>`);
 
-    function spawnGolden(x=null, y=null){
+    function spawnDog(x=null, y=null){
       const rect = stage.getBoundingClientRect();
+      const variant = Math.random() < 0.5 ? 'svg' : 'emoji';
+      if(variant === 'emoji'){
+        const el = document.createElement('div');
+        el.className = 'flower';
+        el.textContent = Math.random() < 0.5 ? '🐶' : '🐕';
+        const posX = x ?? (Math.random()*rect.width);
+        const posY = y ?? (rect.height*0.85);
+        el.style.left = posX + 'px';
+        el.style.top = posY + 'px';
+        el.style.setProperty('--dx', (Math.random()*200 - 100) + 'px');
+        stage.appendChild(el);
+        setTimeout(()=>el.remove(), 4200);
+        return;
+      }
       const g = document.createElement('div');
       g.className = 'golden';
-      g.style.backgroundImage = `url("data:image/svg+xml;utf8,${GOLDEN_SVG}")`;
+      g.style.backgroundImage = `url("data:image/svg+xml;charset=UTF-8,${GOLDEN_SVG}")`;
       const posX = x ?? (rect.width * (0.2 + Math.random()*0.6));
       const posY = y ?? (rect.height * 0.9);
       g.style.left = posX + 'px';
@@ -205,48 +244,50 @@
       setTimeout(()=>g.remove(), 4200);
     }
 
+    function spawnStethoscope(x=null, y=null){
+      const rect = stage.getBoundingClientRect();
+      const el = document.createElement('div');
+      el.className = 'steth';
+      el.textContent = '🩺';
+      const posX = x ?? (Math.random()*rect.width);
+      const posY = y ?? (rect.height*0.8);
+      el.style.left = posX + 'px';
+      el.style.top = posY + 'px';
+      el.style.setProperty('--dx', (Math.random()*200 - 100) + 'px');
+      stage.appendChild(el);
+      setTimeout(()=> el.remove(), 3200);
+    }
+
     // ====== EVENTOS ======
-    btnAdd.addEventListener('click', ()=> addFlower());
+    btnAdd.addEventListener('click', ()=> { addFlower(); spawnStethoscope(); });
     stage.addEventListener('click', (e)=>{
       if(e.target.closest('button')) return;
       const rect = stage.getBoundingClientRect();
-      addFlower(e.clientX - rect.left, e.clientY - rect.top);
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      addFlower(x, y);
+      spawnStethoscope(x, y);
     });
-    btnReset.addEventListener('click', ()=>{ count = 0; countEl.textContent = '0'; stage.querySelectorAll('.flower,.toast,.bubble,.golden').forEach(n=>n.remove()); });
+    btnReset.addEventListener('click', ()=>{ count = 0; countEl.textContent = '0'; stage.querySelectorAll('.flower,.toast,.bubble,.golden,.steth').forEach(n=>n.remove()); });
     btnFull.addEventListener('click', ()=>{ const el = document.documentElement; if(!document.fullscreenElement){ el.requestFullscreen?.(); } else { document.exitFullscreen?.(); } });
     btnShare.addEventListener('click', ()=>{ const text = '🌼 Te hice esta mini app de flores amarillas porque sos mi primavera 💛'; const url = location.href; const w = `https://wa.me/?text=${encodeURIComponent(text+' '+url)}`; window.open(w,'_blank'); });
 
-    // ====== SLIDER GOLDEN ======
-    goldenRange.addEventListener('input', ()=>{ goldenProb = parseInt(goldenRange.value,10)||0; goldenVal.textContent = `${goldenProb}%`; });
-
     // ====== YOUTUBE IFRAME API + FALLBACK ======
-    const YT_VIDEO_ID = 'GemKqzILV4w'; // Snow Patrol - Chasing Cars (Official Video)
+    const YT_VIDEO_ID = 'GemKqzILV4w'; // Snow Patrol - Chasing Cars (Official)
     let ytPlayer = null; let ytReady = false;
-    window.onYouTubeIframeAPIReady = function(){ ytReady = true; ytPlayer = new YT.Player('yt-player', { width:'100%', height:'100%', videoId:YT_VIDEO_ID, playerVars:{rel:0,modestbranding:1,playsinline:1}, events:{ onReady:()=>{} } }); }
-    ;(function loadYT(){ const tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api'; tag.onerror=()=> setTimeout(embedFallback,1000); document.body.appendChild(tag); setTimeout(()=>{ if(!ytReady && !ytPlayer) embedFallback(); },3000); })();
+    window.onYouTubeIframeAPIReady = function(){ ytReady = true; ytPlayer = new YT.Player('yt-player', { width:'100%', height:'100%', videoId:YT_VIDEO_ID, playerVars:{rel:0,modestbranding:1,playsinline:1}, events:{ onReady:()=>{} } }); };
+    (function loadYT(){ const tag=document.createElement('script'); tag.src='https://www.youtube.com/iframe_api'; tag.onerror=()=> setTimeout(embedFallback,1000); document.body.appendChild(tag); setTimeout(()=>{ if(!ytReady && !ytPlayer) embedFallback(); },3000); })();
     function embedFallback(){ if(ytPlayer) return; const c=document.getElementById('yt-player'); c.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${YT_VIDEO_ID}?rel=0&modestbranding=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`; }
-
     btnMusic.addEventListener('click', ()=>{ musicModal.setAttribute('open',''); });
-    btnCloseModal.addEventListener('click', ()=>{ musicModal.removeAttribute('open'); try{ ytPlayer && ytPlayer.pauseVideo(); }catch{} });
-    btnPlay.addEventListener('click', ()=>{ try{ ytPlayer ? ytPlayer.playVideo() : null; }catch{} });
-    btnPause.addEventListener('click', ()=>{ try{ ytPlayer && ytPlayer.pauseVideo(); }catch{} });
-    btnMute.addEventListener('click', ()=>{ try{ if(!ytPlayer) return; if(ytPlayer.isMuted()){ ytPlayer.unMute(); btnMute.textContent='🔇 Mute'; } else { ytPlayer.mute(); btnMute.textContent='🔊 Unmute'; } }catch{} });
+    btnCloseModal.addEventListener('click', ()=>{ musicModal.removeAttribute('open'); try{ ytPlayer && ytPlayer.pauseVideo(); }catch(e){} });
+    btnPlay.addEventListener('click', ()=>{ try{ ytPlayer && ytPlayer.playVideo(); }catch(e){} });
+    btnPause.addEventListener('click', ()=>{ try{ ytPlayer && ytPlayer.pauseVideo(); }catch(e){} });
+    btnMute.addEventListener('click', ()=>{ try{ if(!ytPlayer) return; if(ytPlayer.isMuted()){ ytPlayer.unMute(); btnMute.textContent='🔇 Mute'; } else { ytPlayer.mute(); btnMute.textContent='🔊 Unmute'; } }catch(e){} });
 
     // ====== ARRANQUE ======
-    setTimeout(()=>{ addFlower(); addFlower(); }, 400);
-    setTimeout(()=>{ spawnGolden(); postSpawn(); }, 900);
-
-    // ====== TESTS (consola) ======
-    (function runTests(){
-      const pass = (m)=> console.log('%c✔ '+m,'color:green;font-weight:700');
-      const fail = (m)=> console.error('✖ '+m);
-      try { typeof addFlower==='function' ? pass('addFlower existe') : fail('addFlower no existe'); } catch(e){ fail('Error comprobando addFlower: '+e.message) }
-      try { typeof spawnGolden==='function' ? pass('spawnGolden existe') : fail('spawnGolden no existe'); } catch(e){ fail('Error comprobando spawnGolden: '+e.message) }
-      try { addFlower(10,10); pass('addFlower(10,10) no arroja errores'); } catch(e){ fail('addFlower lanzó error: '+e.message) }
-      try { spawnGolden(20,20); pass('spawnGolden(20,20) no arroja errores'); } catch(e){ fail('spawnGolden lanzó error: '+e.message) }
-      try { goldenRange.value='35'; goldenRange.dispatchEvent(new Event('input')); pass('Slider golden actualiza porcentaje a '+goldenProb+'%'); } catch(e){ fail('Slider golden falló: '+e.message) }
-      try { pass('Video oficial usado: https://www.youtube.com/watch?v=GemKqzILV4w'); } catch(e){}
-    })();
+    renderSince();
+    setInterval(renderSince, 1000);
+    setTimeout(()=>{ addFlower(); addFlower(); spawnStethoscope(); }, 400);
+    setTimeout(()=>{ spawnDog(); postSpawn(); }, 900);
   </script>
 </body>
 </html>
